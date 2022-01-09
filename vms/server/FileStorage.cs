@@ -9,25 +9,25 @@ namespace server
     class FileStorage
     {
         private List<object[]> _lstGlobalRef = new List<object[]>();
+        private List<string> _lstFilenamePrefix = new List<string>();
 
         public FileStorage()
         {
             //
         }
 
-        public string NamePrefix { get; set; } = string.Empty;
-
-        public int FileCount { get; set; } = 0;
-
         public long MaxFileSize { get; set; } = 0;
+
+        public void AddFile(string filenamePrefix)
+        {
+            this._lstFilenamePrefix.Add(filenamePrefix);
+        }
 
         public void Start()
         {
             long capacity = 4 + (2 * (12 + this.MaxFileSize));
-            var n = this.FileCount;
-            for (int i = 0; i < n; ++i)
-            {
-                var name = this.NamePrefix + i.ToString();
+            foreach (var name in this._lstFilenamePrefix)
+            { 
                 var mutexName = name + ".lck";
 
                 var mutex = new Mutex(false, mutexName);

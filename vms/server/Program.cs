@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Threading;
 
 namespace server
 {
@@ -9,6 +10,7 @@ namespace server
         private static string _FFmpeg = string.Empty;
         private static int _MaxInstance = 4;
         private static FileStorage _Storage = null;
+        private static Recorder _Recorder = null;
 
 
         static void Main(string[] args)
@@ -19,14 +21,19 @@ namespace server
                 return;
             }
 
+            var cfgPath = args[0];
             var cfg = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
-            LoadConfigurationFile(args[0], cfg);
+            LoadConfigurationFile(cfgPath, cfg);
 
             ApplyConfiguration(cfg);
 
             _Storage.Start();
+            _Recorder.Start();
 
-            Console.ReadKey();
+            while (true)
+            {
+                Thread.Sleep(1000);
+            }
         }
 
         private static void LoadConfigurationFile(string path, Dictionary<string, string> result)
@@ -56,14 +63,27 @@ namespace server
             _FFmpeg = cfg["ffmpeg"];
 
             var namePrefix = cfg["name_prefix"];
+            var maxFileSize = long.Parse(cfg["max_data_size"]);
+
             _MaxInstance = int.Parse(cfg["max_instance"]);
 
             _Storage = new FileStorage();
-            _Storage.FileCount = _MaxInstance;
-            _Storage.MaxFileSize = long.Parse(cfg["max_data_size"]);
-            _Storage.NamePrefix = namePrefix + "_s1_";
+            _Storage.MaxFileSize = maxFileSize;
+            for (int i = 1; i <= _MaxInstance; ++i)
+            {
+                _Storage.AddFile(namePrefix + "f1_" + i.ToString());
+            }
 
-            //
+            _Recorder = new Recorder();
+            _Recorder.FFmpeg = _FFmpeg;
+            _Recorder.NamePrefix = namePrefix + "f1_";
+            _Recorder.MaximumMSwapFileSize = maxFileSize;
+            _Recorder.DataPath = cfg["recorder.data_path"];
+            _Recorder.FileExtension = cfg["recorder.file_ext"];
+            _Recorder.MinimumFreeSpace = long.Parse(cfg["recorder.min_free_space"]);
+            _Recorder.SegmentLength = int.Parse(cfg["recorder.segment_length"]);
+
+            _Recorder.InitInputStreams(_MaxInstance, cfg);
         }
 
 
