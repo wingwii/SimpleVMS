@@ -93,7 +93,7 @@ namespace server
                 StreamInfo si = null;
                 var key = "recorder.stream_" + (i + 1).ToString();
                 var value = string.Empty;
-                if (cfg.TryGetValue(key, out value))                
+                if (cfg.TryGetValue(key, out value))
                 {
                     var pos = value.IndexOf(':');
                     if (pos > 0)
@@ -114,15 +114,22 @@ namespace server
             {
                 if (si != null)
                 {
-                    _ = RunWatchdog(streamIndex, si.name, si.uri);
+                    _ = this.RunWatchdog(streamIndex, si.name, si.uri);
                 }
                 ++streamIndex;
             }
+
+            _ = this.RunFreeSpaceWatcher();
+        }
+
+        private static string StreamIndexToDirName(int index)
+        {
+            return index.ToString().PadLeft(4, '0');
         }
 
         private async Task RunWatchdog(int streamIndex, string name, string uri)
         {
-            var dataPath = this._dataPath + streamIndex.ToString().PadLeft(4, '0');
+            var dataPath = this._dataPath + StreamIndexToDirName(streamIndex);
             Directory.CreateDirectory(dataPath);
 
             var sb = new StringBuilder();
@@ -146,6 +153,7 @@ namespace server
             sb.Append("\"");
 
             var cmdln = sb.ToString();
+            var di = new DriveInfo(dataPath);
             while (true)
             {
                 using (var process = new Process())
@@ -170,6 +178,70 @@ namespace server
             }
         }
 
+        private long FreeUpSpaceForSingleStream(int streamIndex)
+        {
+            var dataPath = this._dataPath + StreamIndexToDirName(streamIndex);
+            var fileList = Directory.GetFiles(dataPath);
+            if (fileList.Length == 0)
+            {
+                return 0;
+            }
+
+            Array.Sort(fileList);
+
+            long result = 0;
+            var filename = fileList[0];
+            try
+            {
+                var fi = new FileInfo(filename);
+                var fileSize = fi.Length;
+                File.Delete(filename);
+                result = fileSize;
+            }
+            catch (Exception) { }
+            return result;
+        }
+
+        private long FreeUpSpace()
+        {
+            long result = 0;
+            var streamCount = this._rtspInputs.Length;
+            for (int i = 1; i <= streamCount; ++i)
+            {
+                var fileSize = FreeUpSpaceForSingleStream(i);
+                if (fileSize > 0)
+                {
+                    result += fileSize;
+                }
+            }
+            return result;
+        }
+
+        private async Task RunFreeSpaceWatcher()
+        {
+            var di = new DriveInfo(this._dataPath);
+            while (true)
+            {
+                var requestSpace = this._minFreeSpace - di.AvailableFreeSpace;
+                if (requestSpace > 0)
+                {
+                    long totalFreeUp = 0;
+                    while (totalFreeUp < requestSpace)
+                    {
+                        var fileSize = this.FreeUpSpace();
+                        if (fileSize == 0)
+                        {
+                            break;
+                        }
+                        totalFreeUp += fileSize;
+                    }
+                }
+                else
+                {
+                    await Task.Delay(5000);
+                }
+            }
+        }
 
         //
     }
