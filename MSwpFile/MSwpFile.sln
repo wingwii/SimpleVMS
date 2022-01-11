@@ -1,0 +1,31 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.31911.196
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "MSwpFile", "MSwpFile\MSwpFile.vcxproj", "{7EB7C621-275C-4177-BC68-97A62C67C2E4}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|x64 = Debug|x64
+		Debug|x86 = Debug|x86
+		Release|x64 = Release|x64
+		Release|x86 = Release|x86
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{7EB7C621-275C-4177-BC68-97A62C67C2E4}.Debug|x64.ActiveCfg = Debug|x64
+		{7EB7C621-275C-4177-BC68-97A62C67C2E4}.Debug|x64.Build.0 = Debug|x64
+		{7EB7C621-275C-4177-BC68-97A62C67C2E4}.Debug|x86.ActiveCfg = Debug|Win32
+		{7EB7C621-275C-4177-BC68-97A62C67C2E4}.Debug|x86.Build.0 = Debug|Win32
+		{7EB7C621-275C-4177-BC68-97A62C67C2E4}.Release|x64.ActiveCfg = Release|x64
+		{7EB7C621-275C-4177-BC68-97A62C67C2E4}.Release|x64.Build.0 = Release|x64
+		{7EB7C621-275C-4177-BC68-97A62C67C2E4}.Release|x86.ActiveCfg = Release|Win32
+		{7EB7C621-275C-4177-BC68-97A62C67C2E4}.Release|x86.Build.0 = Release|Win32
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {D416AC8B-2592-42EA-A2E0-A53E46BA6AEC}
+	EndGlobalSection
+EndGlobal

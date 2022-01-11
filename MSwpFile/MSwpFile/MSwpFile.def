@@ -1,0 +1,7 @@
+LIBRARY MSwpFile
+EXPORTS
+	OpenMemSwapFile;
+	ReadMemSwapFile;
+	WriteMemSwapFile;
+	SeekMemSwapFile;
+	CloseMemSwapFile;
